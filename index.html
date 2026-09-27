@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#07131b" />
+    <meta name="description" content="Tidebound is a small, original turn-based fantasy RPG about a journey across a living sea." />
+    <title>Tidebound — The Salt March</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/game.js" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="#home" aria-label="Tidebound home">
+          <span class="brand-mark" aria-hidden="true">✳</span>
+          <span>TIDEBOUND</span>
+        </a>
+        <div class="chapter-label"><span class="chapter-dot"></span> THE SALT MARCH <span class="chapter-divider">/</span> 01</div>
+        <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false" title="Toggle interface sounds">
+          <span class="sound-icon" aria-hidden="true">♫</span><span id="soundLabel">SOUND OFF</span>
+        </button>
+      </header>
+
+      <main>
+        <section id="titleScreen" class="title-screen" aria-labelledby="titleHeading">
+          <div class="title-copy">
+            <p class="eyebrow"><span class="eyebrow-line"></span> A TURN-BASED FANTASY RPG</p>
+            <h1 id="titleHeading">When the sea<br />forgets <em>your name.</em></h1>
+            <p class="title-description">The tide has stopped. The bells beneath the water have started ringing. Take three companions beyond the salt line and find out what the deep is calling.</p>
+            <button class="primary-button" id="beginJourney" type="button"><span>Begin the journey</span><span aria-hidden="true">↗</span></button>
+            <p class="controls-note"><kbd>ENTER</kbd> to begin <span>·</span> A small story of courage, carried by the current.</p>
+          </div>
+          <div class="title-art" aria-hidden="true">
+            <div class="moon-halo"></div><div class="moon"></div>
+            <div class="distant-island"></div><div class="sea-line sea-line-one"></div><div class="sea-line sea-line-two"></div>
+            <div class="hero-silhouette"><i></i><b></b></div>
+            <div class="title-art-caption"><span>THE OUTER REACH</span><span>34° 08′ N — 127° 22′ E</span></div>
+            <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
+          </div>
+          <div class="title-footer"><span>© 2026 TIDEBOUND</span><span>AN ORIGINAL MINI RPG</span></div>
+        </section>
+
+        <section id="battleScreen" class="battle-screen is-hidden" aria-label="Battle">
+          <div class="battle-heading">
+            <div><p class="eyebrow"><span class="eyebrow-line"></span> ENCOUNTER 01</p><h2>Salt-worn passage</h2></div>
+            <div class="battle-objective"><span class="objective-icon">✧</span><span>Drive back the <strong>Brinebound</strong></span></div>
+          </div>
+
+          <div class="turn-strip" aria-label="Upcoming turns">
+            <span class="turn-strip-label">TURN ORDER</span>
+            <div id="turnOrder" class="turn-order"></div>
+            <span class="turn-strip-hint">Speed shapes the tide</span>
+          </div>
+
+          <div class="battlefield" id="battlefield">
+            <div class="battlefield-sky"></div><div class="battlefield-moon"></div>
+            <div class="battlefield-mist mist-left"></div><div class="battlefield-mist mist-right"></div>
+            <div class="battlefield-ridge ridge-back"></div><div class="battlefield-ridge ridge-front"></div>
+            <div class="battlefield-water"></div>
+            <div class="scene-coordinates"><span>THE SALT MARCH</span><span>LOW TIDE · 04:17</span></div>
+            <div id="battleMessage" class="battle-message" aria-live="polite"></div>
+            <div id="combatants" class="combatants"></div>
+            <div class="arena-baseline"></div>
+          </div>
+
+          <div class="battle-ui">
+            <section class="party-panel" aria-label="Party status">
+              <div class="panel-heading"><span>THE WAYFARERS</span><span class="party-count">3 / 3 READY</span></div>
+              <div id="partyCards" class="party-cards"></div>
+            </section>
+            <section class="command-panel" aria-label="Actions">
+              <div id="actorHeading" class="actor-heading"></div>
+              <div id="commandContent" class="command-content"></div>
+              <div class="command-footnote"><span>↵</span> SELECT <i></i> <span>ESC</span> BACK</div>
+            </section>
+          </div>
+
+          <div class="battle-log" aria-live="polite"><span class="log-star">✦</span><div id="battleLog"></div><span class="log-index" id="logIndex">01</span></div>
+        </section>
+
+        <section id="endingScreen" class="ending-screen is-hidden" aria-labelledby="endingHeading">
+          <div class="ending-emblem" aria-hidden="true"><span>✳</span></div>
+          <p class="eyebrow"><span class="eyebrow-line"></span> THE CURRENT TURNS</p>
+          <h2 id="endingHeading">A quiet <em>return.</em></h2>
+          <p id="endingCopy" class="ending-copy"></p>
+          <div id="rewardCard" class="reward-card"></div>
+          <button class="primary-button" id="againButton" type="button"><span>Set out again</span><span aria-hidden="true">↗</span></button>
+          <p class="ending-footnote">The next shore is still waiting.</p>
+        </section>
+      </main>
+      <footer class="site-footer"><span>TACTICS FOR THE TIDELINE</span><span>TAKE YOUR TIME. THE TIDE WILL.</span></footer>
+    </div>
+    <div id="srAnnounce" class="sr-only" aria-live="assertive"></div>
+  </body>
+</html>
