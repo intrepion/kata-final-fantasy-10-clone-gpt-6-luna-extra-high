@@ -124,6 +124,7 @@
     constructor(canvas) {
       this.canvas=canvas; this.gl=canvas.getContext('webgl',{alpha:false,antialias:true,powerPreference:'low-power'});
       this.mode='title'; this.party=[]; this.enemy=null; this.activeId=null; this.effect=null; this.focusId=null; this.meshes={}; this.time=0; this.fallback=!this.gl;
+      this.player={x:0,z:0,walking:false,facing:0};
       this.reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if(this.gl){try{this.init();}catch(error){this.fallback=true;console.warn('Tidebound 3D renderer unavailable:',error);}}
       this.frame=(time)=>{ if(!this.reducedMotion)this.time=time*.001; if(this.canvas.getClientRects().length) this.draw(); requestAnimationFrame(this.frame); };
@@ -148,6 +149,7 @@
       this.meshes[name]=entry;
     }
     setMode(mode) { this.mode=mode; }
+    setPlayer(x,z,walking=false,facing=this.player.facing) { this.player={x,z,walking,facing}; }
     setFocus(id) { this.focusId=id; }
     setState(party,enemy,activeId) {
       if(this.lastEnemyHp>0&&enemy?.hp<=0)this.enemyDefeatAt=this.time;
@@ -166,10 +168,11 @@
       const aspect=this.canvas.width/Math.max(1,this.canvas.height);
       const wideEye=this.mode==='title'?[0,4.6,10.8]:[0,6.1,aspect<1.1?16.4:13.7];
       const wideTarget=this.mode==='title'?[0,1.05,0]:[0,.95,0];
+      const fieldTarget=this.mode==='field'?[this.player.x*.72,.85,this.player.z]:null;
       const focuses={kael:[-3.05,1.3,.45],ilea:[-4.32,1.3,-.52],ren:[-4.05,1.3,1.25],brinebound:[3.22,1.3,-.18]};
       const focus=this.mode==='battle'&&this.focusId?focuses[this.focusId]:null;
-      const desiredTarget=focus||wideTarget;
-      const desiredEye=focus?[focus[0]*.76,3.6,focus[2]+7.3]:wideEye;
+      const desiredTarget=focus||fieldTarget||wideTarget;
+      const desiredEye=focus?[focus[0]*.76,3.6,focus[2]+7.3]:this.mode==='field'?[this.player.x*.72,6.4,this.player.z+9.5]:wideEye;
       if(!this.cameraEye){this.cameraEye=[...desiredEye];this.cameraTarget=[...desiredTarget];}
       const delta=this.lastCameraTime===undefined?0:Math.min(.1,this.time-this.lastCameraTime);this.lastCameraTime=this.time;
       const blend=this.reducedMotion?1:1-Math.exp(-delta*4.6);
@@ -202,8 +205,27 @@
       this.drawObject('sphere',[3.9,5.05,-5.5],[0,0,0],[.9,.9,.9],'#d9dfc1',.76);
       for(let i=0;i<11;i+=1){const x=-5.1+i*.98;const z=-2.1+Math.sin(i*2.4)*.48;this.drawObject('cone',[x,.26,z],[0,0,((i%3)-1)*.12],[.09+(.5+.5*Math.sin(i))*0.07,.2+(.5+.5*Math.cos(i))*0.18,.1],'#6e927d',.06);}
       for(let i=0;i<13;i+=1){const x=-5.6+(i*1.08)%11;const z=4.15+Math.sin(i*1.71)*.8;const wave=Math.sin(t*1.5+i)*.05;this.drawObject('ring',[x,-.39+wave,z],[0,0,0],[.24+(i%3)*.12,.035,.1],'#6eb6a8',.2);}
+      this.drawObject('cylinder',[-2.8,.85,-2.5],[0,0,0],[.16,1.3,.16],'#657a70');
+      this.drawObject('cylinder',[-.9,.85,-2.5],[0,0,0],[.16,1.3,.16],'#657a70');
+      this.drawObject('cylinder',[-1.85,2.08,-2.5],[0,0,Math.PI/2],[.14,.97,.14],'#657a70');
+      this.drawObject('ring',[-1.85,1.78,-2.5],[1.57,0,0],[.37,.37,.13],'#d2bd83',.45);
+      this.drawObject('cylinder',[-1.85,1.45,-2.5],[0,0,0],[.035,.26,.035],'#d2bd83',.45);
+      this.drawObject('box',[2.8,.06,-1.55],[0,.16,0],[1.1,.09,.18],'#718274');
+      this.drawObject('box',[2.8,.06,-.95],[0,.16,0],[1.1,.09,.18],'#718274');
       if(this.mode==='title') {
         this.drawUnit({id:'traveler',color:'#8bc3aa',hair:'#273a39',mark:'✦',role:'tideguard'},-.15,-.12,.55,0,t,false);
+        return;
+      }
+      if(this.mode==='field') {
+        if(!this.party.length) return;
+        const leader=this.party.find((unit)=>unit.id==='kael')||this.party[0];
+        const yaw=this.player.facing;const frontX=Math.sin(yaw),frontZ=Math.cos(yaw);const sideX=Math.cos(yaw),sideZ=-Math.sin(yaw);
+        const followers=this.party.filter((unit)=>unit.id!==leader.id);
+        followers.forEach((unit,index)=>{
+          const side=index===0?-1:1;const x=this.player.x-frontX*1.15+sideX*side*.48;const z=this.player.z-frontZ*1.15+sideZ*side*.48;
+          this.drawUnit({...unit,facing:yaw,walking:this.player.walking},x,-.12,z,index+1,t,false);
+        });
+        this.drawUnit({...leader,facing:yaw,walking:this.player.walking},this.player.x,-.12,this.player.z,0,t,true);
         return;
       }
       for(let i=0;i<this.party.length;i+=1){
@@ -221,34 +243,38 @@
       if(this.enemy&&(this.enemy.hp>0||t-(this.enemyDefeatAt||0)<1.2))this.drawEnemy(t);
     }
     drawUnit(unit,x,y,z,index,t,active,effect=null) {
-      const idle=Math.sin(t*2.35+index*1.9)*.055;const progress=effect?Math.max(0,1-(t-effect.start)/effect.duration):0;const stride=effect&&effect.source===unit.id&&effect.kind==='strike'?Math.sin(progress*Math.PI)*.52:Math.sin(t*1.8+index)*.06;
-      const c=unit.color||'#91c8b4';const dark=unit.hair||'#31453e';const bodyY=y+.98+idle;const sway=Math.sin(t*1.1+index)*.05;
-      this.drawObject('cone',[x,bodyY-.23,z-.08],[0,0,sway*.3],[.49,.81,.35],unit.id==='ilea'?'#325b61':unit.id==='ren'?'#714c42':'#69573a');
-      this.drawObject('box',[x,bodyY+.24,z],[0,0,sway],[.4,.5,.29],c);
-      this.drawObject('sphere',[x,bodyY+.93,z],[0,0,sway*.35],[.27,.31,.25],'#d5c6a1');
-      this.drawObject('sphere',[x,bodyY+1.08,z-.015],[0,0,sway*.5],[.29,.18,.27],dark);
-      this.drawObject('sphere',[x+.1,bodyY+.94,z+.218],[0,0,0],[.035,.025,.015],'#172729',.25);
-      this.drawObject('sphere',[x-.22,bodyY+.25,z],[0,0,sway],[.15,.19,.31],unit.id==='ilea'?'#426a6b':unit.id==='ren'?'#754e43':'#aa8850');
-      this.drawObject('cylinder',[x-.17,bodyY-.26,z],[0,0,-stride*.34],[.13,.42,.13],'#253739');
-      this.drawObject('cylinder',[x+.17,bodyY-.26,z],[0,0,stride*.34],[.13,.42,.13],'#253739');
+      const progress=effect?Math.max(0,1-(t-effect.start)/effect.duration):0;
+      const walk=!!unit.walking;
+      const stride=effect&&effect.source===unit.id&&effect.kind==='strike'?Math.sin(progress*Math.PI)*.52:walk?Math.sin(t*13+index)*.46:Math.sin(t*1.8+index)*.06;
+      const idle=walk?Math.abs(Math.sin(t*13+index))*.075:Math.sin(t*2.35+index*1.9)*.055;
+      const c=unit.color||'#91c8b4';const dark=unit.hair||'#31453e';const bodyY=y+.98+idle;const sway=Math.sin(t*(walk?6.5:1.1)+index)*(walk?.1:.05);const yaw=unit.facing||0;
+      const part=(mesh,position,rotation,scale,hex,glow=0)=>{const dx=position[0]-x,dz=position[2]-z;const cosine=Math.cos(yaw),sine=Math.sin(yaw);const rotated=[x+dx*cosine+dz*sine,position[1],z-dx*sine+dz*cosine];this.drawObject(mesh,rotated,[rotation[0],rotation[1]+yaw,rotation[2]],scale,hex,glow);};
+      part('cone',[x,bodyY-.23,z-.08],[0,0,sway*.3],[.49,.81,.35],unit.id==='ilea'?'#325b61':unit.id==='ren'?'#714c42':'#69573a');
+      part('box',[x,bodyY+.24,z],[0,0,sway],[.4,.5,.29],c);
+      part('sphere',[x,bodyY+.93,z],[0,0,sway*.35],[.27,.31,.25],'#d5c6a1');
+      part('sphere',[x,bodyY+1.08,z-.015],[0,0,sway*.5],[.29,.18,.27],dark);
+      part('sphere',[x+.1,bodyY+.94,z+.218],[0,0,0],[.035,.025,.015],'#172729',.25);
+      part('sphere',[x-.22,bodyY+.25,z],[0,0,sway],[.15,.19,.31],unit.id==='ilea'?'#426a6b':unit.id==='ren'?'#754e43':'#aa8850');
+      part('cylinder',[x-.17,bodyY-.26,z],[0,0,-stride*.34],[.13,.42,.13],'#253739');
+      part('cylinder',[x+.17,bodyY-.26,z],[0,0,stride*.34],[.13,.42,.13],'#253739');
       const guarding=effect?.source===unit.id&&effect.kind==='guard'&&progress>0;
-      this.drawObject('cylinder',[x-.5,bodyY+.25,z],[0,0,guarding?-.95:-.42+stride*.18],[.11,.36,.11],c);
-      this.drawObject('cylinder',[x+.5,bodyY+.25,z],[0,0,guarding?.95:.42-stride*.18],[.11,.36,.11],c);
-      this.drawObject('sphere',[x-.65,bodyY-.03,z],[0,0,0],[.13,.13,.13],'#d1bd94');
-      this.drawObject('sphere',[x+.65,bodyY-.03,z],[0,0,0],[.13,.13,.13],'#d1bd94');
+      part('cylinder',[x-.5,bodyY+.25,z],[0,0,guarding?-.95:-.42+stride*.18],[.11,.36,.11],c);
+      part('cylinder',[x+.5,bodyY+.25,z],[0,0,guarding?.95:.42-stride*.18],[.11,.36,.11],c);
+      part('sphere',[x-.65,bodyY-.03,z],[0,0,0],[.13,.13,.13],'#d1bd94');
+      part('sphere',[x+.65,bodyY-.03,z],[0,0,0],[.13,.13,.13],'#d1bd94');
       if(unit.id==='ilea'){
-        this.drawObject('cylinder',[x-.56,bodyY+.22,z],[0,0,-.09],[.045,.94,.045],'#d0bb83',.1);
-        this.drawObject('sphere',[x-.56,bodyY+1.2,z],[0,0,0],[.18,.18,.18],'#90e0d2',.75);
+        part('cylinder',[x-.56,bodyY+.22,z],[0,0,-.09],[.045,.94,.045],'#d0bb83',.1);
+        part('sphere',[x-.56,bodyY+1.2,z],[0,0,0],[.18,.18,.18],'#90e0d2',.75);
       } else if(unit.id==='ren') {
-        this.drawObject('ring',[x+.72,bodyY+.22,z],[1.57,0,0],[.34,.32,.1],'#d0a981',.15);
-        this.drawObject('cylinder',[x+.72,bodyY+.22,z],[0,0,0],[.018,.39,.018],'#dce2c8',.12);
+        part('ring',[x+.72,bodyY+.22,z],[1.57,0,0],[.34,.32,.1],'#d0a981',.15);
+        part('cylinder',[x+.72,bodyY+.22,z],[0,0,0],[.018,.39,.018],'#dce2c8',.12);
       } else {
         const swing=effect?.source===unit.id&&effect.kind==='strike'?Math.sin(progress*Math.PI)*1.35:0;
-        this.drawObject('box',[x+.68,bodyY+.39,z],[0,0,-.23+swing],[.075,.66,.06],'#d8dfcf',.16);
-        this.drawObject('box',[x+.68,bodyY+.17,z],[0,0,-.23+swing],[.2,.035,.08],'#d2b36e',.24);
+        part('box',[x+.68,bodyY+.39,z],[0,0,-.23+swing],[.075,.66,.06],'#d8dfcf',.16);
+        part('box',[x+.68,bodyY+.17,z],[0,0,-.23+swing],[.2,.035,.08],'#d2b36e',.24);
       }
       if(active||(effect?.kind==='heal'&&progress>0)){
-        for(let i=0;i<4;i+=1){const a=t*2+i*Math.PI/2;const radius=.69+Math.sin(t*2+i)*.04;this.drawObject('sphere',[x+Math.cos(a)*radius,bodyY+.45+Math.sin(a*1.3+t)*.35,z+Math.sin(a)*.26],[0,0,0],[.045,.045,.045],effect?.kind==='heal'?'#9cffe0':c,.8);}
+        for(let i=0;i<4;i+=1){const a=t*2+i*Math.PI/2;const radius=.69+Math.sin(t*2+i)*.04;part('sphere',[x+Math.cos(a)*radius,bodyY+.45+Math.sin(a*1.3+t)*.35,z+Math.sin(a)*.26],[0,0,0],[.045,.045,.045],effect?.kind==='heal'?'#9cffe0':c,.8);}
       }
     }
     drawEnemy(t) {
@@ -276,9 +302,18 @@
     }
     drawFallback() {
       const ctx=this.canvas.getContext('2d');if(!ctx)return;const w=this.canvas.width=this.canvas.clientWidth,h=this.canvas.height=this.canvas.clientHeight;ctx.fillStyle='#163038';ctx.fillRect(0,0,w,h);ctx.fillStyle='#234448';ctx.beginPath();ctx.ellipse(w*.5,h*.83,w*.48,h*.24,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#d8ddc5';ctx.globalAlpha=.8;ctx.beginPath();ctx.arc(w*.77,h*.21,Math.min(w,h)*.07,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
-      const units=this.mode==='title'?[{id:'traveler',name:'',color:'#8bc3aa',hair:'#273a39'}]:this.party;
-      units.forEach((unit,index)=>{if(unit.hp===0)return;const x=this.mode==='title'?w*.5:w*(.21+index*.1);const y=h*.7;ctx.fillStyle=unit.color;ctx.fillRect(x-15,y-66,30,54);ctx.fillStyle='#d5c6a1';ctx.beginPath();ctx.arc(x,y-78,12,0,Math.PI*2);ctx.fill();});
-      if(this.mode==='battle'&&this.enemy?.hp>0){ctx.fillStyle='#526a58';ctx.beginPath();ctx.ellipse(w*.78,h*.67,54,62,0,0,Math.PI*2);ctx.fill();}
+      const drawFigure=(unit,x,y,index)=>{if(unit.hp===0)return;const stride=unit.walking?Math.sin(this.time*13+index)*7:Math.sin(this.time*1.8+index)*1.5;ctx.strokeStyle='#253739';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(x-6,y-15);ctx.lineTo(x-8-stride,y);ctx.moveTo(x+6,y-15);ctx.lineTo(x+8+stride,y);ctx.stroke();ctx.fillStyle=unit.color;ctx.fillRect(x-15,y-66,30,52);ctx.fillStyle='#d5c6a1';ctx.beginPath();ctx.arc(x,y-78,12,0,Math.PI*2);ctx.fill();};
+      if(this.mode==='title') drawFigure({id:'traveler',color:'#8bc3aa'},w*.5,h*.7,0);
+      else if(this.mode==='field'){
+        const x=w*(.5+this.player.x*.063);const y=h*(.7+this.player.z*.018);
+        ctx.strokeStyle='#657a70';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(w*.32,h*.52);ctx.lineTo(w*.32,h*.3);ctx.lineTo(w*.48,h*.3);ctx.lineTo(w*.48,h*.52);ctx.stroke();
+        const frontX=Math.sin(this.player.facing),frontZ=Math.cos(this.player.facing);const sideX=Math.cos(this.player.facing),sideZ=-Math.sin(this.player.facing);
+        this.party.filter((unit)=>unit.id!=='kael').forEach((unit,index)=>drawFigure({...unit,walking:this.player.walking},x+(-frontX*1.15+sideX*(index===0?-.48:.48))*w*.063,y+(-frontZ*1.15+sideZ*(index===0?-.48:.48))*h*.018,index+1));
+        drawFigure({...this.party.find((unit)=>unit.id==='kael'),walking:this.player.walking},x,y,0);
+      } else {
+        this.party.forEach((unit,index)=>drawFigure(unit,w*(.21+index*.1),h*.7,index));
+        if(this.enemy?.hp>0){ctx.fillStyle='#526a58';ctx.beginPath();ctx.ellipse(w*.78,h*.67,54,62,0,0,Math.PI*2);ctx.fill();}
+      }
     }
   }
   window.TideScene=TideScene;

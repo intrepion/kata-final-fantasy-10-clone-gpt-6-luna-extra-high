@@ -1,24 +1,25 @@
 # Tidebound: The Salt March
 
-A small, original browser RPG with a real-time WebGL battlefield, story dialogue, turn-based party combat, and a connected character-growth board. Three companions face a creature from the deep on a hand-crafted shoreline.
+An original browser RPG prototype with a small explorable 3D shoreline, distance-triggered encounters, turn-based party combat, action callouts, and a connected character-growth board.
 
 ## Play
 
-Open `index.html` in a modern browser. No build step or dependencies are required. If your browser restricts local scripts, serve this directory with any static file server.
+Open `index.html` in a modern browser. The game uses relative file paths and has no build step or external dependencies. If the browser blocks local scripts, run it from any static file server.
 
-1. Open **The Tidewheel** to spend each companion's starting Sphere Points on connected nodes.
-2. Choose **Begin the journey** and advance the opening dialogue.
+1. Choose **Begin the journey** to enter the Salt March.
+2. Walk with `WASD`, the arrow keys, or the on-screen pad. Random encounters begin as you explore.
 3. Use **Strike**, **Technique**, **Satchel**, or **Guard** when a companion's turn arrives.
-4. Earn three more Sphere Points per companion after victory. Attuned nodes change combat stats and can unlock character-specific arts.
-5. Return to the Tidewheel before answering the next, stronger bell.
+4. The party returns to the field after victory. Spend Sphere Points on connected Tidewheel nodes; stats and unlocked arts carry into the next fight.
+5. Turn on **VOICE** to hear battle callouts with a speech voice installed by your browser or device. Turn on **SOUND** for interface tones.
 
-The turn strip previews the next actors. Speed changes how quickly each character returns to the queue; guarding halves the next incoming hit and gets the user back into the queue sooner. The Tidewheel is a shared 35-node hex map with separate starting points and character-specific ability nodes; its paths and Sphere Points save in local storage.
+The Tidewheel has 35 connected nodes, separate starting points, and character-specific arts. Nodes cost one Sphere Point, and each victory adds three points per companion. Attunement and victory progress save in local storage.
 
 ## Controls
 
-- `1`–`4`: choose Strike, Technique, Satchel, or Guard.
-- `Enter`: advance dialogue, begin the journey, or select the default action.
-- `Escape`: return to the action menu.
-- Mouse, touch, and keyboard focus are supported in the menus and Tidewheel.
+- `WASD` or arrow keys: walk the field.
+- `1`–`4`: choose Strike, Technique, Satchel, or Guard during a party turn.
+- `Enter`: select the default combat action.
+- `Escape`: return to the action menu or close the Tidewheel.
+- Mouse, touch, and keyboard focus work in the menus; the map also includes a touch movement pad.
 
-The story, characters, creature, dialogue, and low-poly 3D models are original. The renderer uses WebGL directly, with no game engine, build step, or external game assets.
+The story, characters, creature, writing, and low-poly 3D models are original. The renderer uses WebGL directly with a 2D fallback. Voice callouts use browser speech synthesis, not recorded character performances; natural voice acting would require audio recordings.

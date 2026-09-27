@@ -20,9 +20,14 @@
           <span>TIDEBOUND</span>
         </a>
         <div class="chapter-label"><span class="chapter-dot"></span> THE SALT MARCH <span class="chapter-divider">/</span> 01</div>
-        <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false" title="Toggle interface sounds">
-          <span class="sound-icon" aria-hidden="true">♫</span><span id="soundLabel">SOUND OFF</span>
-        </button>
+        <div class="audio-controls">
+          <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false" title="Toggle interface sounds">
+            <span class="sound-icon" aria-hidden="true">♫</span><span id="soundLabel">SOUND OFF</span>
+          </button>
+          <button class="sound-toggle voice-toggle" id="voiceToggle" type="button" aria-pressed="false" title="Use your browser's built-in voice for battle callouts">
+            <span class="sound-icon" aria-hidden="true">◖</span><span id="voiceLabel">VOICE OFF</span>
+          </button>
+        </div>
       </header>
 
       <main>
@@ -41,6 +46,29 @@
           <div class="title-footer"><span>© 2026 TIDEBOUND</span><span>AN ORIGINAL MINI RPG</span></div>
         </section>
 
+        <section id="mapScreen" class="map-screen is-hidden" aria-label="Explore the Salt March">
+          <header class="map-heading">
+            <div><p class="eyebrow"><span class="eyebrow-line"></span> THE SALT MARCH · LOW TIDE</p><h2>Walk the <em>bell shelf.</em></h2></div>
+            <div class="map-heading-actions"><span id="fieldEncounterCount" class="field-encounter-count">NO ENCOUNTERS</span><button id="openGridFromMap" class="secondary-button" type="button"><span>◉</span> TIDEWHEEL <small>3 SP EACH</small></button></div>
+          </header>
+          <div id="mapStage" class="map-stage">
+            <div class="scene-coordinates"><span>THE OUTER REACH</span><span>34° 08′ N — 127° 22′ E</span></div>
+            <div class="map-prompt"><span class="map-prompt-key">WASD / ARROWS</span><span>WALK THE SHALLOWS · ENCOUNTERS FIND YOU</span></div>
+            <div id="encounterMeter" class="encounter-meter" role="progressbar" aria-label="Encounter buildup" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="encounterMeterFill"></span></div>
+            <div id="fieldCatchphrase" class="field-catchphrase" role="status" aria-live="polite"></div>
+            <nav class="touch-pad" aria-label="Move the wayfinder">
+              <button type="button" data-move="up" aria-label="Walk north">▲</button><div><button type="button" data-move="left" aria-label="Walk west">◀</button><button type="button" data-move="down" aria-label="Walk south">▼</button><button type="button" data-move="right" aria-label="Walk east">▶</button></div>
+            </nav>
+          </div>
+          <div class="field-lower-grid">
+            <section class="field-party-panel" aria-label="Wayfarer health and focus">
+              <div class="panel-heading"><span>THE WAYFARERS</span><span id="fieldPartyCount" class="party-count">3 / 3 READY</span></div>
+              <div id="fieldPartyCards" class="party-cards"></div>
+            </section>
+            <aside class="field-notes"><span class="field-note-kicker">THE BELLS BELOW</span><p>The shelf carries their sound. Keep moving and the things hiding beneath it may surface.</p><span id="mapControls" class="field-controls"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> OR ARROW KEYS TO WALK <span>·</span> TUNE THE TIDEWHEEL ANYTIME</span></aside>
+          </div>
+        </section>
+
         <section id="battleScreen" class="battle-screen is-hidden" aria-label="Battle">
           <div class="battle-heading">
             <div><p class="eyebrow"><span class="eyebrow-line"></span> <span id="encounterLabel">ENCOUNTER 01</span></p><h2 id="battleHeading">Salt-worn passage</h2></div>
@@ -57,12 +85,8 @@
             <div class="scene-coordinates"><span>THE SALT MARCH</span><span>LOW TIDE · 04:17</span></div>
             <div class="enemy-plate"><span>THREAT <strong>BRINEBOUND</strong></span><span class="enemy-plate-track"><span id="enemyHpFill"></span></span></div>
             <div id="battleMessage" class="battle-message" aria-live="polite"></div>
+            <div id="battleCatchphrase" class="battle-catchphrase" role="status" aria-live="polite"></div>
             <div id="floatingNumbers" class="floating-numbers" aria-hidden="true"></div>
-            <section id="dialogueBox" class="dialogue-box is-hidden" aria-label="Dialogue" aria-live="polite">
-              <div class="dialogue-portrait" id="dialoguePortrait"><span id="dialogueMark">K</span></div>
-              <div class="dialogue-copy"><div class="dialogue-speaker"><strong id="dialogueSpeaker">KAEL</strong><span id="dialogueRole">TIDEGUARD</span></div><p id="dialogueText"></p></div>
-              <button id="dialogueNext" class="dialogue-next" type="button" aria-label="Continue dialogue">CONTINUE <span aria-hidden="true">▸</span></button>
-            </section>
           </div>
 
           <div class="battle-ui">
