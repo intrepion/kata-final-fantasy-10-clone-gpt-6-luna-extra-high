@@ -8,6 +8,8 @@
     <title>Tidebound — The Salt March</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
+    <script src="./scene3d.js" defer></script>
+    <script src="./sphere-grid.js" defer></script>
     <script src="./game.js" defer></script>
   </head>
   <body>
@@ -29,22 +31,19 @@
             <p class="eyebrow"><span class="eyebrow-line"></span> A TURN-BASED FANTASY RPG</p>
             <h1 id="titleHeading">When the sea<br />forgets <em>your name.</em></h1>
             <p class="title-description">The tide has stopped. The bells beneath the water have started ringing. Take three companions beyond the salt line and find out what the deep is calling.</p>
-            <button class="primary-button" id="beginJourney" type="button"><span>Begin the journey</span><span aria-hidden="true">↗</span></button>
-            <p class="controls-note"><kbd>ENTER</kbd> to begin <span>·</span> A small story of courage, carried by the current.</p>
+            <div class="title-actions"><button class="primary-button" id="beginJourney" type="button"><span>Begin the journey</span><span aria-hidden="true">↗</span></button><button class="secondary-button" id="openGridFromTitle" type="button"><span>◉</span> OPEN THE TIDEWHEEL <small>3 SP EACH</small></button></div>
+            <p class="controls-note"><kbd>ENTER</kbd> to begin <span>·</span> A story of courage, carried by the current.</p>
           </div>
           <div class="title-art" aria-hidden="true">
-            <div class="moon-halo"></div><div class="moon"></div>
-            <div class="distant-island"></div><div class="sea-line sea-line-one"></div><div class="sea-line sea-line-two"></div>
-            <div class="hero-silhouette"><i></i><b></b></div>
+            <canvas id="worldCanvas" class="world-canvas" aria-label="A lone traveler faces a moonlit sea"></canvas>
             <div class="title-art-caption"><span>THE OUTER REACH</span><span>34° 08′ N — 127° 22′ E</span></div>
-            <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
           </div>
           <div class="title-footer"><span>© 2026 TIDEBOUND</span><span>AN ORIGINAL MINI RPG</span></div>
         </section>
 
         <section id="battleScreen" class="battle-screen is-hidden" aria-label="Battle">
           <div class="battle-heading">
-            <div><p class="eyebrow"><span class="eyebrow-line"></span> ENCOUNTER 01</p><h2>Salt-worn passage</h2></div>
+            <div><p class="eyebrow"><span class="eyebrow-line"></span> <span id="encounterLabel">ENCOUNTER 01</span></p><h2 id="battleHeading">Salt-worn passage</h2></div>
             <div class="battle-objective"><span class="objective-icon">✧</span><span>Drive back the <strong>Brinebound</strong></span></div>
           </div>
 
@@ -55,18 +54,19 @@
           </div>
 
           <div class="battlefield" id="battlefield">
-            <div class="battlefield-sky"></div><div class="battlefield-moon"></div>
-            <div class="battlefield-mist mist-left"></div><div class="battlefield-mist mist-right"></div>
-            <div class="battlefield-ridge ridge-back"></div><div class="battlefield-ridge ridge-front"></div>
-            <div class="battlefield-water"></div>
             <div class="scene-coordinates"><span>THE SALT MARCH</span><span>LOW TIDE · 04:17</span></div>
+            <div class="enemy-plate"><span>THREAT <strong>BRINEBOUND</strong></span><span class="enemy-plate-track"><span id="enemyHpFill"></span></span></div>
             <div id="battleMessage" class="battle-message" aria-live="polite"></div>
-            <div id="combatants" class="combatants"></div>
-            <div class="arena-baseline"></div>
+            <div id="floatingNumbers" class="floating-numbers" aria-hidden="true"></div>
+            <section id="dialogueBox" class="dialogue-box is-hidden" aria-label="Dialogue" aria-live="polite">
+              <div class="dialogue-portrait" id="dialoguePortrait"><span id="dialogueMark">K</span></div>
+              <div class="dialogue-copy"><div class="dialogue-speaker"><strong id="dialogueSpeaker">KAEL</strong><span id="dialogueRole">TIDEGUARD</span></div><p id="dialogueText"></p></div>
+              <button id="dialogueNext" class="dialogue-next" type="button" aria-label="Continue dialogue">CONTINUE <span aria-hidden="true">▸</span></button>
+            </section>
           </div>
 
           <div class="battle-ui">
-            <section class="party-panel" aria-label="Party status">
+            <section class="party-panel" id="partyPanel" aria-label="Party status">
               <div class="panel-heading"><span>THE WAYFARERS</span><span class="party-count">3 / 3 READY</span></div>
               <div id="partyCards" class="party-cards"></div>
             </section>
@@ -86,8 +86,21 @@
           <h2 id="endingHeading">A quiet <em>return.</em></h2>
           <p id="endingCopy" class="ending-copy"></p>
           <div id="rewardCard" class="reward-card"></div>
-          <button class="primary-button" id="againButton" type="button"><span>Set out again</span><span aria-hidden="true">↗</span></button>
+          <div class="ending-actions"><button class="primary-button" id="againButton" type="button"><span>Set out again</span><span aria-hidden="true">↗</span></button><button class="secondary-button" id="openGridFromEnding" type="button"><span>◉</span> TUNE THE TIDEWHEEL <small>SP AVAILABLE</small></button></div>
           <p class="ending-footnote">The next shore is still waiting.</p>
+        </section>
+
+        <section id="sphereOverlay" class="sphere-overlay is-hidden" role="dialog" aria-modal="true" aria-labelledby="gridTitle">
+          <div class="sphere-window">
+            <header class="sphere-header"><div><p class="eyebrow"><span class="eyebrow-line"></span> GROW TOWARD THE CURRENT</p><h2 id="gridTitle">The Tidewheel</h2></div><button id="closeGrid" class="close-grid" type="button" aria-label="Close Tidewheel">×</button></header>
+            <p class="sphere-intro">Choose a companion, then light a neighboring node. Each step changes their stats; some paths hide character-specific arts that only their traveler can attune.</p>
+            <nav id="gridTabs" class="grid-tabs" aria-label="Choose a companion"></nav>
+            <div class="sphere-layout">
+              <div class="sphere-board-wrap"><div class="sphere-board-title"><span id="gridIdentity">KAEL · TIDEGUARD</span><span>1 SP PER NODE</span></div><svg id="gridSvg" class="sphere-board" viewBox="0 0 780 468" role="group" aria-label="Connected character progression nodes"></svg><div class="grid-legend"><span><i class="legend-ready"></i> CONNECTED</span><span><i class="legend-active"></i> ATTUNED</span><span><i class="legend-art"></i> CHARACTER ART</span></div></div>
+              <aside id="gridDetails" class="grid-details"><p class="grid-detail-kind" id="gridDetailKind">WAYFARER</p><h3 id="gridDetailTitle">Choose a node</h3><p id="gridDetailCopy">Your companions begin on different shores of the same constellation.</p><div id="gridStatList" class="grid-stat-list"></div><button id="activateNode" class="activate-node" type="button" disabled>SELECT A CONNECTED NODE</button><p class="grid-detail-note" id="gridDetailNote">The current links every path.</p></aside>
+            </div>
+            <footer class="sphere-footer"><span>ATTUNE THE PATH. CARRY IT INTO BATTLE.</span><span id="gridVictoryCount">THE SALT MARCH · NO VICTORIES YET</span></footer>
+          </div>
         </section>
       </main>
       <footer class="site-footer"><span>TACTICS FOR THE TIDELINE</span><span>TAKE YOUR TIME. THE TIDE WILL.</span></footer>
