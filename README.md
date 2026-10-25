@@ -1,5 +1,9 @@
 # Tidebound: The Salt March
 
+## Play online
+
+[Play Tidebound](https://intrepion.github.io/kata-final-fantasy-10-clone-gpt-6-luna-extra-high/) — free, playable in your browser.
+
 An original browser RPG prototype with a small explorable 3D shoreline, distance-triggered encounters, turn-based party combat, action callouts, and a connected character-growth board.
 
 ## Play
