@@ -1,6 +1,53 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "gameId": "kata-final-fantasy-10-clone-gpt-6-luna-extra-high",
   "playUrl": "https://intrepion.github.io/kata-final-fantasy-10-clone-gpt-6-luna-extra-high/",
-  "screenshots": []
+  "screenshots": [
+    {
+      "path": "arcade/screenshots/ci-20261102-01.jpg",
+      "sha256": "c66c5eb4234df9ebc171af65ae19d8335829ae3c11fc371aafea43b1612ba478",
+      "alt": "Tidebound gameplay, view 1",
+      "provenance": {
+        "kind": "ci_gameplay_capture",
+        "sourcePath": "arcade/capture-evidence/ci-20261102-01.png",
+        "sourceSha256": "0a365c4188c77b0ae0730408033242d635bd2a67d5d7ca3b7ae632620d82d241",
+        "captureCommit": "4cb0d8a923de6d1a431043e522cdc4f1968be099",
+        "workflowRunId": "41402280925",
+        "inputHashes": {
+          "index.html": "2bacb10dcba6c10cf4281129f184df948e9bd2ce4996a3266718b21c9cbe83cc",
+          "styles.css": "7bcbb3f03456216a39424163f4352eea54de6cf759e3c46408ae0a6ded114411",
+          "game.js": "adb148fdfccc869f62909498713c4d218a80a6de721f1d696aa2da011eebe56e",
+          "scene3d.js": "3417e2e3eba4f89c4ef418464285cb25153b294f0dcff899d965bcb41c737921",
+          "sphere-grid.js": "3af4252e9ea34bf57c63f6143fb9bddb03c01fe1db39747f136920e004ec6fcb",
+          "favicon.svg": "aebb29e4936fc994f6efb94e96ed6853a4c05321fbae97950fe3cbd7f731a1bc"
+        },
+        "publishedFilesVerifiedAt": "2026-11-02T19:01:20Z",
+        "captureRecordPath": "arcade/capture-evidence/ci-20261102-record.json",
+        "captureRecordSha256": "20c53d8b5c42dad43fda63de3f2b23246b0ce016a3753494a105372a39f52f77"
+      }
+    },
+    {
+      "path": "arcade/screenshots/ci-20261102-02.jpg",
+      "sha256": "a4d7f264294ab22bb9b9813f1d9a52f9f298333ae550986fb6466f28f7460740",
+      "alt": "Tidebound gameplay, view 2",
+      "provenance": {
+        "kind": "ci_gameplay_capture",
+        "sourcePath": "arcade/capture-evidence/ci-20261102-02.png",
+        "sourceSha256": "ebc5192d6f71bccc8019c36c84a5799537b261e0b6e4e6f77e8476c34915b8fe",
+        "captureCommit": "4cb0d8a923de6d1a431043e522cdc4f1968be099",
+        "workflowRunId": "41402280925",
+        "inputHashes": {
+          "index.html": "2bacb10dcba6c10cf4281129f184df948e9bd2ce4996a3266718b21c9cbe83cc",
+          "styles.css": "7bcbb3f03456216a39424163f4352eea54de6cf759e3c46408ae0a6ded114411",
+          "game.js": "adb148fdfccc869f62909498713c4d218a80a6de721f1d696aa2da011eebe56e",
+          "scene3d.js": "3417e2e3eba4f89c4ef418464285cb25153b294f0dcff899d965bcb41c737921",
+          "sphere-grid.js": "3af4252e9ea34bf57c63f6143fb9bddb03c01fe1db39747f136920e004ec6fcb",
+          "favicon.svg": "aebb29e4936fc994f6efb94e96ed6853a4c05321fbae97950fe3cbd7f731a1bc"
+        },
+        "publishedFilesVerifiedAt": "2026-11-02T19:01:20Z",
+        "captureRecordPath": "arcade/capture-evidence/ci-20261102-record.json",
+        "captureRecordSha256": "20c53d8b5c42dad43fda63de3f2b23246b0ce016a3753494a105372a39f52f77"
+      }
+    }
+  ]
 }
