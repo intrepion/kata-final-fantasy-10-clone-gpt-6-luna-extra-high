@@ -27,3 +27,7 @@ The Tidewheel has 35 connected nodes, separate starting points, and character-sp
 - Mouse, touch, and keyboard focus work in the menus; the map also includes a touch movement pad.
 
 The story, characters, creature, writing, and low-poly 3D models are original. The renderer uses WebGL directly with a 2D fallback. Voice callouts use browser speech synthesis, not recorded character performances; natural voice acting would require audio recordings.
+
+## Arcade metadata
+
+See [docs/arcade-metadata.md](docs/arcade-metadata.md) for the game-owned manifest and screenshot provenance.
